@@ -223,11 +223,10 @@ namespace RuntimeSongLoader::LoadingFixHooks {
     MAKE_HOOK_MATCH(FileHelpers_GetEscapedURLForFilePath, &FileHelpers::GetEscapedURLForFilePath, StringW, StringW filePath) {
         LOG_DEBUG("FileHelpers_GetEscapedURLForFilePath");
         std::u16string str = static_cast<std::u16string>(filePath);
-        int index = str.find_last_of('/') + 1;
-        StringW dir = str.substr(0, index);
-        StringW fileName = Networking::UnityWebRequest::EscapeURL(str.substr(index, str.size()));
-        std::replace(fileName.begin(), fileName.end(), u'+', u' '); // '+' breaks stuff even though it's supposed to be valid encoding ¯\_(ツ)_/¯
-        return u"file://" + dir + fileName;
+        if (str[0] == u'/') str.erase(0, 1);
+        StringW url = u"file:///" + Networking::UnityWebRequest::EscapeURL(str);
+        std::replace(url.begin(), url.end(), u'+', u' ');
+        return url;
     }
 
 
